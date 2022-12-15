@@ -477,6 +477,59 @@ Parser.prototype.parseCoverage = function() {
     throw new Error('0x' + startOffset.toString(16) + ': Coverage format must be 1 or 2.');
 };
 
+// Parse a BaseArray Table in GPOS table
+Parser.prototype.parseBaseArray = function(marksClassCount) {
+    const count = this.parseUShort();
+    return this.parseList(count, Parser.list(
+        marksClassCount, 
+        Parser.pointer(Parser.anchor)
+    ));
+};
+
+// Parse a MarkArray Table in GPOS table
+// https://learn.microsoft.com/en-us/typography/opentype/otspec191alpha/gpos_delta#mark-array-table
+Parser.prototype.parseMarkArray = function() {
+    const count = this.parseUShort();
+    return this.parseRecordList(count, {
+        class: Parser.uShort,
+        attachmentPoint: Parser.pointer(Parser.anchor)
+    });
+};
+
+// https://learn.microsoft.com/en-us/typography/opentype/otspec191alpha/gpos_delta#anchor-tables
+Parser.prototype.parseAnchorPoint = function() {
+    const startOffset = this.offset + this.relativeOffset;
+    const format = this.parseUShort();
+    switch(format) {
+        case 1:
+            return {
+                format,
+                xCoordinate: this.parseShort(),
+                yCoordinate: this.parseShort()
+            };
+        case 2:
+            return {
+                format,
+                xCoordinate: this.parseShort(),
+                yCoordinate: this.parseShort(),
+                anchorPoint: this.parseUShort()
+            };
+
+        // TODO: Support Device offsets
+        // https://learn.microsoft.com/en-us/typography/opentype/otspec191alpha/gpos_delta#anchor-table-format-3-design-units-plus-device-or-variationindex-tables
+        case 3:
+            return {
+                format,
+                xCoordinate: this.parseShort(),
+                yCoordinate: this.parseShort(),
+                xDevice: 0x00, 
+                yDevice: 0x00,
+            };
+    }
+
+    throw new Error('0x' + startOffset.toString(16) + ': Anchor format must be 1, 2 or 3.');
+};
+
 // Parse a Class Definition Table in a GSUB, GPOS or GDEF table.
 // https://www.microsoft.com/typography/OTSPEC/chapter2.htm
 Parser.prototype.parseClassDef = function() {
@@ -543,11 +596,13 @@ Parser.pointer32 = function(description) {
 Parser.tag = Parser.prototype.parseTag;
 Parser.byte = Parser.prototype.parseByte;
 Parser.uShort = Parser.offset16 = Parser.prototype.parseUShort;
+Parser.short = Parser.prototype.parseShort;
 Parser.uShortList = Parser.prototype.parseUShortList;
 Parser.uLong = Parser.offset32 = Parser.prototype.parseULong;
 Parser.uLongList = Parser.prototype.parseULongList;
 Parser.struct = Parser.prototype.parseStruct;
 Parser.coverage = Parser.prototype.parseCoverage;
+Parser.anchor = Parser.prototype.parseAnchorPoint;
 Parser.classDef = Parser.prototype.parseClassDef;
 
 ///// Script, Feature, Lookup lists ///////////////////////////////////////////////

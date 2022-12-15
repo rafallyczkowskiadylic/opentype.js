@@ -138,4 +138,204 @@ describe('tables/gpos.js', function() {
             ]
         });
     });
+
+    //// Lookup type 4 ////////////////////////////////////////////////////////
+    it('can parse lookup4 MarkBasePosFormat1', function() {
+
+        const data = 
+            ` 0001` + // MarkMarkPosFormat1
+            ` 000C` + // markCoverageOffset
+            ` 0016` + // baseCoverageOffset
+            ` 0002` + // markClassCount
+            ` 001C` + // markArrayOffset
+            ` 0038` + // baseArrayOffset
+            ` 0002 0001 0045 0046 0000` + 
+            ` 0001 0001 0047` +
+            ` 0002  0000  000A   0001  0016  0001 00BD 012D 0001 00DD 012E 0001 00DF FED1` + 
+            ` 0001    0006 000C  0001 00BD 012D 0001 00DD 012E 0001 00DF FED1` + 
+            ``;
+
+        const expectedResult = {
+            posFormat: 1,
+            markCoverage: {
+                format: 2,
+                ranges: [
+                    { start: 0x45, end: 0x46, index: 0 }
+                ]
+            },
+            baseCoverage: {
+                glyphs: [71],
+                format: 1
+            },
+            markArray: [{
+                class: 0,
+                attachmentPoint: {
+                    format: 1,
+                    xCoordinate: 189,
+                    yCoordinate: 301
+                }
+            }, {
+                class: 1,
+                attachmentPoint: {
+                    format: 1,
+                    xCoordinate: 223,
+                    yCoordinate: -303
+                }
+            }],
+            baseArray: [
+                [{
+                    format: 1,
+                    xCoordinate: 189,
+                    yCoordinate: 301
+                }, 
+                {
+                    format: 1,
+                    xCoordinate: 221,
+                    yCoordinate: 302
+                }]
+            ]
+        };
+
+        assert.deepEqual(parseLookup(4, data), expectedResult);
+    });
+
+    //// Lookup type 9 ////////////////////////////////////////////////////////
+    describe('lookup9 ExtensionPosFormat1', function() {
+
+        it('should return a message for unsupported lookup type format', function() {
+            const UnsupportedLookupTypeData = '0001';
+            const data = 
+                ` 0001` +
+                ` 0006` + // UNSUPPORTED lookup type extensionLookupType 
+                ` 00000008` + // extensionLookupTableOffset
+                ` ${UnsupportedLookupTypeData}` +
+                ``;
+
+            assert.deepEqual(parseLookup(9, data), { error: 'GPOS Lookup 6 not supported' });
+        });
+
+        it('can parse lookup1 extension table', function() {
+
+            const SinglePosFormat1data = '0001 0008 0002   FFB0 0002 0001   01B3 01BC 0000';
+            const data = 
+                ` 0001` +
+                ` 0001` + // extensionLookupType
+                ` 00000008` + // extensionLookupTableOffset
+                ` ${SinglePosFormat1data}` +
+                ``;
+
+            const expectedResult = {
+                posFormat: 1,
+                coverage: {
+                    format: 2,
+                    ranges: [{ start: 0x1b3, end: 0x1bc, index: 0 }]
+                },
+                value: { yPlacement: -80 }
+            };
+
+            assert.deepEqual(parseLookup(9, data), expectedResult);
+        }); 
+        
+        it('can parse lookup2 extension table', function() {
+
+            const lookup2Data = '0002 0018 0004 0000 0022 0032 0002 0002 0000 0000 0000 FFCE   0001 0003 0046 0047 0049   0002 0002 0046 0047 0001 0049 0049 0001   0002 0001 006A 006B 0001';
+            const data = 
+                ` 0001` +
+                ` 0002` + // extensionLookupType
+                ` 00000008` + // extensionLookupTableOffset
+                ` ${lookup2Data}` +
+                ``;
+
+            const expectedResult = {
+                posFormat: 2,
+                coverage: {
+                    format: 1,
+                    glyphs: [0x46, 0x47, 0x49]
+                },
+                valueFormat1: 4,
+                valueFormat2: 0,
+                classDef1: {
+                    format: 2,
+                    ranges: [
+                        { start: 0x46, end: 0x47, classId: 1 },
+                        { start: 0x49, end: 0x49, classId: 1 }
+                    ]
+                },
+                classDef2: {
+                    format: 2,
+                    ranges: [
+                        { start: 0x6a, end: 0x6b, classId: 1 }
+                    ]
+                },
+                class1Count: 2,
+                class2Count: 2,
+                classRecords: [
+                    [
+                        { value1: { xAdvance: 0 }, value2: undefined },
+                        { value1: { xAdvance: 0 }, value2: undefined }
+                    ],
+                    [
+                        { value1: { xAdvance: 0 }, value2: undefined },
+                        { value1: { xAdvance: -50 }, value2: undefined }
+                    ]
+                ]
+            };
+
+            assert.deepEqual(parseLookup(9, data), expectedResult);
+        }); 
+
+        it('can parse lookup4 extension table', function() {
+
+            const MarkBasePosFormat1 = ' 0001 000C 0016 0002 001C 0038 0002 0001 0045 0046 0000 0001 0001 0047 0002  0000  000A   0001  0016  0001 00BD 012D 0001 00DD 012E 0001 00DF FED1 0001    0006 000C  0001 00BD 012D 0001 00DD 012E 0001 00DF FED1';
+            const data = 
+                ` 0001` +
+                ` 0004` + // extensionLookupType
+                ` 00000008` + // extensionLookupTableOffset
+                ` ${MarkBasePosFormat1}` +
+                ``;
+
+                const expectedResult = {
+                    posFormat: 1,
+                    markCoverage: {
+                        format: 2,
+                        ranges: [
+                            { start: 0x45, end: 0x46, index: 0 }
+                        ]
+                    },
+                    baseCoverage: {
+                        glyphs: [71],
+                        format: 1
+                    },
+                    markArray: [{
+                        class: 0,
+                        attachmentPoint: {
+                            format: 1,
+                            xCoordinate: 189,
+                            yCoordinate: 301
+                        }
+                    }, {
+                        class: 1,
+                        attachmentPoint: {
+                            format: 1,
+                            xCoordinate: 223,
+                            yCoordinate: -303
+                        }
+                    }],
+                    baseArray: [ 
+                        [{
+                            format: 1,
+                            xCoordinate: 189,
+                            yCoordinate: 301
+                        }, {
+                            format: 1,
+                            xCoordinate: 221,
+                            yCoordinate: 302
+                        }]
+                    ]
+                };
+
+            assert.deepEqual(parseLookup(9, data), expectedResult);
+
+        });
+    });
 });

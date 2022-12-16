@@ -102,7 +102,7 @@ describe('bidi.js', function() {
             });
 
             it('should apply glyph ligatures', function () {
-                let glyphIndexes = thaiBidi.getTextGlyphs("ฤๅ");                
+                let glyphIndexes = thaiBidi.getTextGlyphs('ฤๅ');                
                 assert.deepEqual(glyphIndexes, [84]);
             });
         });

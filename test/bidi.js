@@ -84,6 +84,28 @@ describe('bidi.js', function() {
             let glyphIndexes = bidiFira.getTextGlyphs('fi'); // fi => ﬁ
             assert.deepEqual(glyphIndexes, [1145]);
         });
+
+        describe('thai features', function() {
+            let thaiBidi; 
+            before(function () {
+                const thaiFont = loadSync('./fonts/NotoSansThai-Medium.ttf');
+                thaiBidi = new Bidi();
+                thaiBidi.registerModifier(
+                    'glyphIndex', null, token => thaiFont.charToGlyphIndex(token.char)
+                );
+                thaiBidi.applyFeatures(thaiFont, [{ script: 'thai', tags: ['liga', 'ccmp']}]);
+            });
+
+            it('should apply glyph composition', function () {
+                let glyphIndexes = thaiBidi.getTextGlyphs('่ํ');                
+                assert.deepEqual(glyphIndexes, [63]);
+            });
+
+            it('should apply glyph ligatures', function () {
+                let glyphIndexes = thaiBidi.getTextGlyphs("ฤๅ");                
+                assert.deepEqual(glyphIndexes, [84]);
+            });
+        });
     });
 });
 

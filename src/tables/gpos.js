@@ -102,7 +102,7 @@ subtableParsers[4] = function parseLookup4() {
 };
 
 subtableParsers[5] = function parseLookup5() { return { error: 'GPOS Lookup 5 not supported' }; };
-subtableParsers[6] = function parseLookup5() { return { error: 'GPOS Lookup 6 not supported' }; };
+subtableParsers[6] = function parseLookup6() { return { error: 'GPOS Lookup 6 not supported' }; };
 subtableParsers[7] = function parseLookup7() { return { error: 'GPOS Lookup 7 not supported' }; };
 subtableParsers[8] = function parseLookup8() { return { error: 'GPOS Lookup 8 not supported' }; };
 

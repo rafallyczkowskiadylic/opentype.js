@@ -19,9 +19,9 @@
   * Apply Thai required glyphs composition substitutions
   * @param {ContextRange} range a range of tokens
   */
- function thaiGlyphComposition() {
+ function thaiGlyphComposition(range) {
     const script = 'thai';
-    let tokens = this.tokenizer.tokens;
+    let tokens = this.tokenizer.getRangeTokens(range);
     let contextParams = getContextParams(tokens, 0);
     contextParams.context.forEach((glyphIndex, index) => {
         contextParams.setCurrentIndex(index);

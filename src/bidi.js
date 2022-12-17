@@ -182,8 +182,12 @@ function applyLatinLigatures() {
  */
 function applyThaiFeatures() {
     checkGlyphIndexStatus.call(this);
-    if (this.hasFeatureEnabled('thai', 'liga')) thaiLigatures.call(this);
-    if (this.hasFeatureEnabled('thai', 'ccmp')) thaiGlyphComposition.call(this);
+    const ranges = this.tokenizer.getContextRanges('thaiWord');
+    ranges.forEach(range => {
+        if (this.hasFeatureEnabled('thai', 'liga')) thaiLigatures.call(this, range);
+        if (this.hasFeatureEnabled('thai', 'ccmp')) thaiGlyphComposition.call(this, range);
+    });
+    
 }
 
 /**

@@ -112,7 +112,9 @@ subtableParsers[9] = function parseLookup9() {
     const posFormat = this.parseUShort();
     check.assert(posFormat === 1, '0x' + start.toString(16) + ': GPOS lookup type 9 format must be 1.');
     const extensionLookupType = this.parseUShort();
-    return this.parsePointer32(subtableParsers[extensionLookupType]);
+    const subtable = this.parsePointer32(subtableParsers[extensionLookupType]);
+    subtable.extensionLookupType = extensionLookupType;
+    return subtable;
 };
 
 // https://docs.microsoft.com/en-us/typography/opentype/spec/gpos

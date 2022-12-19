@@ -211,7 +211,10 @@ describe('tables/gpos.js', function() {
                 ` ${UnsupportedLookupTypeData}` +
                 ``;
 
-            assert.deepEqual(parseLookup(9, data), { error: 'GPOS Lookup 6 not supported' });
+            assert.deepEqual(parseLookup(9, data), { 
+                extensionLookupType: 6,
+                error: 'GPOS Lookup 6 not supported' 
+            });
         });
 
         it('can parse lookup1 extension table', function() {
@@ -226,6 +229,7 @@ describe('tables/gpos.js', function() {
 
             const expectedResult = {
                 posFormat: 1,
+                extensionLookupType: 1,
                 coverage: {
                     format: 2,
                     ranges: [{ start: 0x1b3, end: 0x1bc, index: 0 }]
@@ -248,6 +252,7 @@ describe('tables/gpos.js', function() {
 
             const expectedResult = {
                 posFormat: 2,
+                extensionLookupType: 2,
                 coverage: {
                     format: 1,
                     glyphs: [0x46, 0x47, 0x49]
@@ -296,6 +301,7 @@ describe('tables/gpos.js', function() {
 
                 const expectedResult = {
                     posFormat: 1,
+                    extensionLookupType: 4,
                     markCoverage: {
                         format: 2,
                         ranges: [
